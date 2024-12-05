@@ -1,4 +1,4 @@
-import { GAME_CONSTANTS } from '../utils/Constants.js';
+import { GAME_CONSTANTS, ASSET_PATHS } from '../utils/Constants.js';
 import { Ship } from '../models/Ship.js';
 import { Asteroid } from '../models/Asteroid.js';
 import { Bullet } from '../models/Bullet.js';

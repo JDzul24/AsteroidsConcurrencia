@@ -1,4 +1,4 @@
-import { GAME_CONSTANTS } from '../utils/Constants.js';
+import { GAME_CONSTANTS, ASSET_PATHS } from '../utils/Constants.js';
 import { GameObject } from './GameObject.js';
 import { MathUtils } from '../utils/MathUtils.js';
 

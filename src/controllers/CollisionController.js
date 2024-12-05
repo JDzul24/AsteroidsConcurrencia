@@ -19,6 +19,11 @@ export class CollisionController {
     }
 
     checkCollisions(gameObjects) {
+        if (!gameObjects.ship) {
+            console.warn("Ship object is null or undefined.");
+            return;
+        }
+    
         this.collisionWorker.postMessage({
             type: GAME_CONSTANTS.WORKER_MESSAGES.COLLISION.CHECK,
             gameObjects: {
@@ -73,15 +78,14 @@ export class CollisionController {
         destroyedIndices.forEach(index => {
             const asteroid = this.gameController.getAsteroidByIndex(index);
             if (asteroid) {
-                // Crear asteroides más pequeños si el tamaño lo permite
-                if (asteroid.size > 1) {
-                    this.createSmallerAsteroids(asteroid);
-                }
+                // Calcular puntuación basada en el tamaño
+                const points = GAME_CONSTANTS.GAME.POINTS_PER_ASTEROID * asteroid.size;
+                this.gameController.updateScore(points);
                 
-                // Reproducir efecto de sonido
-                this.gameController.playExplosionSound();
+                // Reproducir sonido
+                this.gameController.audioService.playExplosion();
                 
-                // Eliminar el asteroide
+                // Eliminar asteroide
                 this.gameController.removeAsteroid(index);
             }
         });

@@ -22,13 +22,22 @@ export class AudioService {
     playExplosion() {
         if (!this.isMuted) {
             this.sounds.explosion.currentTime = 0;
-            this.sounds.explosion.play();
+            this.sounds.explosion.play().catch(error => {
+                console.warn('Error playing explosion sound:', error);
+            });
         }
     }
 
     playBackground() {
         if (!this.isMuted) {
-            this.sounds.background.play();
+            // Agregar manejo de promesa y errores para el audio
+            this.sounds.background.play().catch(error => {
+                console.warn('Error playing background music:', error);
+                // Intentar reproducir después de interacción del usuario
+                document.addEventListener('click', () => {
+                    this.sounds.background.play().catch(console.warn);
+                }, { once: true });
+            });
         }
     }
 

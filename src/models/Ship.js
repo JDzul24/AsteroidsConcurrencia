@@ -20,6 +20,27 @@ export class Ship extends GameObject {
         };
     }
 
+    update(controls) {
+        if (controls.accelerating) {
+            this.speed.x += Math.cos(this.angle) * GAME_CONSTANTS.SHIP.ACCELERATION;
+            this.speed.y += Math.sin(this.angle) * GAME_CONSTANTS.SHIP.ACCELERATION;
+        }
+
+        this.angle += controls.rotating;
+
+        // Aplicar fricción
+        this.speed.x *= (1 - GAME_CONSTANTS.SHIP.FRICTION);
+        this.speed.y *= (1 - GAME_CONSTANTS.SHIP.FRICTION);
+
+        // Limitar la velocidad máxima
+        this.speed.x = Math.max(Math.min(this.speed.x, GAME_CONSTANTS.SHIP.MAX_SPEED), -GAME_CONSTANTS.SHIP.MAX_SPEED);
+        this.speed.y = Math.max(Math.min(this.speed.y, GAME_CONSTANTS.SHIP.MAX_SPEED), -GAME_CONSTANTS.SHIP.MAX_SPEED);
+
+        // Actualizar posición
+        this.x += this.speed.x;
+        this.y += this.speed.y;
+    }
+
     rotate(dir) {
         this.rotation = dir * GAME_CONSTANTS.SHIP.ROTATION_SPEED * Math.PI / 180;
     }

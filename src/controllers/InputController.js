@@ -37,53 +37,34 @@ export class InputController {
         if (Object.keys(this.keyMap).includes(key)) {
             event.preventDefault();
         }
-
+    
         this.keysPressed[key] = true;
-
-        // Usar las constantes para el mapeo de teclas
-        switch (key) {
-            case GAME_CONSTANTS.CONTROLS.KEYS.ACCELERATE:
-                this.controls.accelerating = true;
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_LEFT:
-                this.controls.rotating = -this.rotationSpeed;
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_RIGHT:
-                this.controls.rotating = this.rotationSpeed;
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.SHOOT:
-                this.handleShoot();
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.PAUSE:
-                this.handlePause();
-                break;
+    
+        if (GAME_CONSTANTS.CONTROLS.KEYS.ACCELERATE.includes(key)) {
+            this.controls.accelerating = true;
+        } else if (GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_LEFT.includes(key)) {
+            this.controls.rotating = -1;
+        } else if (GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_RIGHT.includes(key)) {
+            this.controls.rotating = 1;
+        } else if (key === GAME_CONSTANTS.CONTROLS.KEYS.SHOOT) {
+            this.handleShoot();
+        } else if (key === GAME_CONSTANTS.CONTROLS.KEYS.PAUSE) {
+            this.handlePause();
         }
     }
-
+    
     handleKeyUp(event) {
         const key = event.key.toLowerCase();
         this.keysPressed[key] = false;
-
-        switch (key) {
-            case GAME_CONSTANTS.CONTROLS.KEYS.ACCELERATE:
-                this.controls.accelerating = false;
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_LEFT:
-                if (this.controls.rotating === -this.rotationSpeed) {
-                    this.controls.rotating = 0;
-                }
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_RIGHT:
-                if (this.controls.rotating === this.rotationSpeed) {
-                    this.controls.rotating = 0;
-                }
-                break;
-            case GAME_CONSTANTS.CONTROLS.KEYS.SHOOT:
-                this.controls.shooting = false;
-                break;
+    
+        if (GAME_CONSTANTS.CONTROLS.KEYS.ACCELERATE.includes(key)) {
+            this.controls.accelerating = false;
+        } else if (GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_LEFT.includes(key) || GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_RIGHT.includes(key)) {
+            this.controls.rotating = 0;
+        } else if (key === GAME_CONSTANTS.CONTROLS.KEYS.SHOOT) {
+            this.controls.shooting = false;
         }
     }
-
     handleBlur() {
         this.keysPressed = {};
         this.controls = {

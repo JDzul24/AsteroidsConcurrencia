@@ -6,9 +6,9 @@ export const GAME_CONSTANTS = {
     
     CONTROLS: {
         KEYS: {
-            ACCELERATE: 'w',
-            ROTATE_LEFT: 'q',
-            ROTATE_RIGHT: 'e',
+            ACCELERATE: ['w', 'arrowup'],
+            ROTATE_LEFT: ['a', 'arrowleft'],
+            ROTATE_RIGHT: ['d', 'arrowright'],
             SHOOT: ' ',
             PAUSE: 'escape'
         },
@@ -84,7 +84,7 @@ export const GAME_CONSTANTS = {
 
 export const ASSET_PATHS = {
     IMAGES: {
-        SHIP: '/src/assets/images/nave.gif',
+        SHIP: '/src/assets/images/nave.png',
         ASTEROID: '/src/assets/images/asteroide.png'
     },
     SOUNDS: {

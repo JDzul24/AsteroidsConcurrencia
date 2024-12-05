@@ -5,6 +5,7 @@ import { AudioService } from '../services/AudioService.js';
 import { ScoreService } from '../services/ScoreService.js';
 import { GameView } from '../views/GameView.js';
 import { UIView } from '../views/UIView.js';
+import { Ship } from '../models/Ship.js';
 
 export class GameController {
     constructor(canvas) {
@@ -97,26 +98,16 @@ export class GameController {
     }
 
     start() {
-        if (this.isRunning) return;
-        
-        this.isRunning = true;
-        this.isPaused = false;
-        
-        // Inicializar nave
-        this.shipWorker.postMessage({
-            type: 'INIT',
-            x: this.canvas.width / 2,
-            y: this.canvas.height / 2
-        });
-
-        // Inicializar asteroides
+        this.setupGameState();
         this.spawnInitialAsteroids();
-
-        // Iniciar música de fondo
-        this.audioService.playBackground();
-
-        // Iniciar loop del juego
+        this.createShip(); // Asegúrate de que este método inicialice la nave correctamente
+        this.isRunning = true;
         this.gameLoop();
+    }
+    
+    createShip() {
+        const { width, height } = this.canvas;
+        this.gameObjects.ship = new Ship(width / 2, height / 2);
     }
 
     spawnInitialAsteroids() {
@@ -149,14 +140,17 @@ export class GameController {
 
     updateGameState() {
         // Actualizar nave
+        const controls = this.inputController.getControls();
+
+    // Enviar controles al worker de la nave
         this.shipWorker.postMessage({
-            type: 'UPDATE',
-            canvas: {
-                width: this.canvas.width,
-                height: this.canvas.height
-            },
-            controls: this.inputController.getControls()
-        });
+        type: 'UPDATE',
+        controls: controls,
+        canvas: {
+            width: this.canvas.width,
+            height: this.canvas.height
+        }
+    });
 
         // Actualizar asteroides
         this.asteroidWorker.postMessage({
@@ -253,21 +247,40 @@ export class GameController {
     }
 
     restart() {
+        // Detener y limpiar el estado actual
+        cancelAnimationFrame(this.animationFrameId);
+        
+        // Reiniciar workers
+        this.shipWorker.postMessage({ type: 'RESET' });
+        this.asteroidWorker.postMessage({ type: 'CLEAR' });
+        this.bulletWorker.postMessage({ type: 'CLEAR' });
+        
+        // Reiniciar estado del juego
+        this.setupGameState();
+        
+        // Ocultar pantalla de game over
+        this.uiView.hideGameOver();
+        
+        // Crear nueva nave y asteroides
+        this.createShip();
+        this.spawnInitialAsteroids();
+        
+        // Reiniciar servicios
         this.scoreService.reset();
+        
+        // Reiniciar el juego
+        this.isRunning = true;
+        this.isPaused = false;
+        this.gameLoop();
+    }
+    
+    setupGameState() {
         this.gameObjects = {
             ship: null,
             asteroids: [],
             bullets: []
         };
-        
-        // Limpiar workers
-        this.bulletWorker.postMessage({ type: 'CLEAR' });
-        this.asteroidWorker.postMessage({ type: 'CLEAR' });
-        
-        this.uiView.hideGameOver();
-        this.start();
     }
-
     // Métodos de acceso para otros controladores
     getAsteroidByIndex(index) {
         return this.gameObjects.asteroids[index];
