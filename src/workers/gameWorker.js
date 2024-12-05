@@ -13,7 +13,7 @@ let gameState = {
 const GAME_CONFIG = {
     initialAsteroids: 5,
     pointsPerAsteroid: 100,
-    maxLives: 3,
+    maxLives: 1,
     levelUpThreshold: 1000
 };
 

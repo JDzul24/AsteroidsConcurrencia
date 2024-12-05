@@ -4,50 +4,25 @@ import { GameObject } from './GameObject.js';
 export class Ship extends GameObject {
     constructor(x, y) {
         super(x, y, GAME_CONSTANTS.SHIP.RADIUS);
-        this.angle = 0;
-        this.rotation = 0;
+        this.angle = -Math.PI / 2; // Apunta hacia arriba inicialmente
         this.speed = { x: 0, y: 0 };
         this.acceleration = GAME_CONSTANTS.SHIP.ACCELERATION;
         this.maxSpeed = GAME_CONSTANTS.SHIP.MAX_SPEED;
         this.friction = GAME_CONSTANTS.SHIP.FRICTION;
-
-        // Inicializar sprite
-        this.sprite = new Image();
-        this.sprite.src = ASSET_PATHS.IMAGES.SHIP;
-        this.spriteLoaded = false;
-        this.sprite.onload = () => {
-            this.spriteLoaded = true;
-        };
     }
 
     update(controls) {
-        if (controls.accelerating) {
-            this.speed.x += Math.cos(this.angle) * GAME_CONSTANTS.SHIP.ACCELERATION;
-            this.speed.y += Math.sin(this.angle) * GAME_CONSTANTS.SHIP.ACCELERATION;
+        if (controls.rotating !== 0) {
+            this.angle += controls.rotating * GAME_CONSTANTS.SHIP.ROTATION_SPEED;
         }
 
-        this.angle += controls.rotating;
+        if (controls.accelerating) {
+            this.speed.x += Math.cos(this.angle) * this.acceleration;
+            this.speed.y += Math.sin(this.angle) * this.acceleration;
+        }
 
-        // Aplicar fricción
-        this.speed.x *= (1 - GAME_CONSTANTS.SHIP.FRICTION);
-        this.speed.y *= (1 - GAME_CONSTANTS.SHIP.FRICTION);
-
-        // Limitar la velocidad máxima
-        this.speed.x = Math.max(Math.min(this.speed.x, GAME_CONSTANTS.SHIP.MAX_SPEED), -GAME_CONSTANTS.SHIP.MAX_SPEED);
-        this.speed.y = Math.max(Math.min(this.speed.y, GAME_CONSTANTS.SHIP.MAX_SPEED), -GAME_CONSTANTS.SHIP.MAX_SPEED);
-
-        // Actualizar posición
-        this.x += this.speed.x;
-        this.y += this.speed.y;
-    }
-
-    rotate(dir) {
-        this.rotation = dir * GAME_CONSTANTS.SHIP.ROTATION_SPEED * Math.PI / 180;
-    }
-
-    accelerate(dir) {
-        this.speed.x += Math.cos(this.angle) * this.acceleration * dir;
-        this.speed.y += Math.sin(this.angle) * this.acceleration * dir;
+        this.speed.x *= (1 - this.friction);
+        this.speed.y *= (1 - this.friction);
 
         const currentSpeed = Math.sqrt(this.speed.x ** 2 + this.speed.y ** 2);
         if (currentSpeed > this.maxSpeed) {
@@ -55,7 +30,11 @@ export class Ship extends GameObject {
             this.speed.x *= ratio;
             this.speed.y *= ratio;
         }
+
+        this.x += this.speed.x;
+        this.y += this.speed.y;
     }
+
 
     update(canvas) {
         this.angle += this.rotation;

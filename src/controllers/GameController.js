@@ -107,7 +107,11 @@ export class GameController {
     
     createShip() {
         const { width, height } = this.canvas;
-        this.gameObjects.ship = new Ship(width / 2, height / 2);
+        this.shipWorker.postMessage({
+            type: 'INIT',
+            x: width / 2,
+            y: height / 2
+        });
     }
 
     spawnInitialAsteroids() {
@@ -124,17 +128,41 @@ export class GameController {
 
     gameLoop() {
         if (!this.isRunning || this.isPaused) return;
-
-        // Actualizar posiciones
-        this.updateGameState();
-
-        // Verificar colisiones
+    
+        const controls = this.inputController.getControls();
+    
+        // Actualizar nave
+        this.shipWorker.postMessage({
+            type: 'UPDATE',
+            controls: controls,
+            canvas: {
+                width: this.canvas.width,
+                height: this.canvas.height
+            }
+        });
+    
+        // Actualizar asteroides
+        this.asteroidWorker.postMessage({
+            type: 'UPDATE',
+            canvas: {
+                width: this.canvas.width,
+                height: this.canvas.height
+            }
+        });
+    
+        // Actualizar disparos
+        this.bulletWorker.postMessage({
+            type: 'UPDATE',
+            canvas: {
+                width: this.canvas.width,
+                height: this.canvas.height
+            }
+        });
+    
+        // Verificar colisiones y renderizar
         this.collisionController.checkCollisions(this.gameObjects);
-
-        // Renderizar
-        this.render();
-
-        // Continuar loop
+        this.gameView.drawGame(this.gameObjects);
+    
         this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
     }
 
@@ -180,14 +208,18 @@ export class GameController {
 
     shoot() {
         if (!this.gameObjects.ship || !this.isRunning || this.isPaused) return;
-
+    
+        const ship = this.gameObjects.ship;
+        const bulletX = ship.x + Math.cos(ship.angle) * ship.radius;
+        const bulletY = ship.y + Math.sin(ship.angle) * ship.radius;
+    
         this.bulletWorker.postMessage({
             type: 'CREATE',
-            x: this.gameObjects.ship.x,
-            y: this.gameObjects.ship.y,
-            angle: this.gameObjects.ship.angle
+            x: bulletX,
+            y: bulletY,
+            angle: ship.angle
         });
-
+    
         this.audioService.playShoot();
     }
 
@@ -228,10 +260,12 @@ export class GameController {
         }
     }
 
-    pause() {
-        this.isPaused = true;
-        this.audioService.pauseBackground();
+    togglePause() {
+    this.isPaused = !this.isPaused;
+    if (!this.isPaused) {
+        this.gameLoop();
     }
+}
 
     resume() {
         this.isPaused = false;

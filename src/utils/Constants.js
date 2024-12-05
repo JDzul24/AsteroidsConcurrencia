@@ -5,30 +5,26 @@ export const GAME_CONSTANTS = {
     },
     
     CONTROLS: {
-        KEYS: {
-            ACCELERATE: ['w', 'arrowup'],
-            ROTATE_LEFT: ['a', 'arrowleft'],
-            ROTATE_RIGHT: ['d', 'arrowright'],
-            SHOOT: ' ',
-            PAUSE: 'escape'
-        },
-        SHOOT_COOLDOWN: 250, // milisegundos entre disparos
         KEY_MAP: {
-            w: 'accelerate',
-            q: 'rotateLeft',
-            e: 'rotateRight',
+            'w': 'accelerate',
+            'arrowup': 'accelerate',
+            'a': 'rotateLeft',
+            'arrowleft': 'rotateLeft',
+            'd': 'rotateRight',
+            'arrowright': 'rotateRight',
             ' ': 'shoot',
-            escape: 'pause'
-        }
+            'escape': 'pause'
+        },
+        SHOOT_COOLDOWN: 250
     },
 
 
     SHIP: {
         RADIUS: 20,
-        ACCELERATION: 1,
+        ACCELERATION: 0.1,
         MAX_SPEED: 2,
-        FRICTION: 0.3,
-        ROTATION_SPEED: 2,
+        FRICTION: 0.5,
+        ROTATION_SPEED: 0.05,
         SPRITE: {
             WIDTH: 64,
             HEIGHT: 64
@@ -64,7 +60,7 @@ export const GAME_CONSTANTS = {
     },
     
     GAME: {
-        INITIAL_LIVES: 3,
+        INITIAL_LIVES: 1,
         POINTS_PER_ASTEROID: 100,
         LEVEL_UP_THRESHOLD: 1000
     },

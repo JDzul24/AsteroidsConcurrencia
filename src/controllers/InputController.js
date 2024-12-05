@@ -36,33 +36,51 @@ export class InputController {
         
         if (Object.keys(this.keyMap).includes(key)) {
             event.preventDefault();
-        }
-    
-        this.keysPressed[key] = true;
-    
-        if (GAME_CONSTANTS.CONTROLS.KEYS.ACCELERATE.includes(key)) {
-            this.controls.accelerating = true;
-        } else if (GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_LEFT.includes(key)) {
-            this.controls.rotating = -1;
-        } else if (GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_RIGHT.includes(key)) {
-            this.controls.rotating = 1;
-        } else if (key === GAME_CONSTANTS.CONTROLS.KEYS.SHOOT) {
-            this.handleShoot();
-        } else if (key === GAME_CONSTANTS.CONTROLS.KEYS.PAUSE) {
-            this.handlePause();
+            this.keysPressed[key] = true;
+            
+            // Actualizar controles basado en el mapeo de teclas
+            switch (this.keyMap[key]) {
+                case 'accelerate':
+                    this.controls.accelerating = true;
+                    break;
+                case 'rotateLeft':
+                    this.controls.rotating = -1;
+                    break;
+                case 'rotateRight':
+                    this.controls.rotating = 1;
+                    break;
+                case 'shoot':
+                    this.handleShoot();
+                    break;
+                    case 'pause':
+                        this.gameController.togglePause();
+                        break;
+            }
         }
     }
-    
+
     handleKeyUp(event) {
         const key = event.key.toLowerCase();
-        this.keysPressed[key] = false;
-    
-        if (GAME_CONSTANTS.CONTROLS.KEYS.ACCELERATE.includes(key)) {
-            this.controls.accelerating = false;
-        } else if (GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_LEFT.includes(key) || GAME_CONSTANTS.CONTROLS.KEYS.ROTATE_RIGHT.includes(key)) {
-            this.controls.rotating = 0;
-        } else if (key === GAME_CONSTANTS.CONTROLS.KEYS.SHOOT) {
-            this.controls.shooting = false;
+        
+        if (Object.keys(this.keyMap).includes(key)) {
+            this.keysPressed[key] = false;
+            
+            // Actualizar controles basado en el mapeo de teclas
+            switch (this.keyMap[key]) {
+                case 'accelerate':
+                    this.controls.accelerating = false;
+                    break;
+                case 'rotateLeft':
+                    if (this.controls.rotating === -1) {
+                        this.controls.rotating = 0;
+                    }
+                    break;
+                case 'rotateRight':
+                    if (this.controls.rotating === 1) {
+                        this.controls.rotating = 0;
+                    }
+                    break;
+            }
         }
     }
     handleBlur() {

@@ -26,13 +26,24 @@ class Ship extends GameObject {
         }
     }
 
-    update(canvas) {
-        this.angle += this.rotation;
-        super.updatePosition(canvas);
-        
+    update(controls, canvas) {
+        // Actualizar rotación
+        if (controls.rotating !== 0) {
+            this.angle += controls.rotating * (Math.PI / 32);
+        }
+
+        // Actualizar aceleración
+        if (controls.accelerating) {
+            this.speed.x += Math.cos(this.angle) * this.acceleration;
+            this.speed.y += Math.sin(this.angle) * this.acceleration;
+        }
+
         // Aplicar fricción
-        this.speed.x *= this.friction;
-        this.speed.y *= this.friction;
+        this.speed.x *= (1 - this.friction);
+        this.speed.y *= (1 - this.friction);
+
+        // Actualizar posición y mantener dentro del canvas
+        this.updatePosition(canvas);
     }
 }
 
@@ -45,38 +56,24 @@ self.onmessage = function(e) {
             ship = new Ship(x, y);
             break;
 
-        case 'UPDATE':
-            if (!ship) return;
-            
-            const { canvas, controls } = e.data;
-            
-            if (controls.accelerating) {
-                ship.accelerate(1);
-            }
-            if (controls.rotating !== 0) {
-                ship.rotate(controls.rotating);
-            }
-            
-            ship.update(canvas);
-            
-            self.postMessage({
-                type: 'SHIP_UPDATED',
-                ship: {
-                    x: ship.x,
-                    y: ship.y,
-                    angle: ship.angle,
-                    speed: ship.speed
-                }
-            });
-            break;
+            case 'UPDATE':
+                if (!ship) return;
+                
+                const { controls, canvas } = e.data;
+                ship.update(controls, canvas);
+                
+                self.postMessage({
+                    type: 'SHIP_UPDATED',
+                    ship: {
+                        x: ship.x,
+                        y: ship.y,
+                        angle: ship.angle,
+                        speed: ship.speed,
+                        radius: ship.radius
+                    }
+                });
+                break;
 
-        case 'RESET':
-            if (!ship) return;
-            const { canvasWidth, canvasHeight } = e.data;
-            ship.x = canvasWidth / 2;
-            ship.y = canvasHeight / 2;
-            ship.speed = { x: 0, y: 0 };
-            ship.angle = 0;
-            break;
+        
     }
 };
