@@ -1,27 +1,30 @@
+import { GameController } from './controllers/GameController.js';
+import { GAME_CONSTANTS } from './utils/Constants.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('gameCanvas');
-    canvas.width = 800;
-    canvas.height = 600;
+    const gameController = new GameController(canvas);
 
-    let keysPressed = {};
-
-    window.addEventListener('keydown', (event) => {
-        keysPressed[event.key] = true;
+    // Configurar el botón de inicio
+    const startButton = document.getElementById('startButton');
+    startButton.addEventListener('click', () => {
+        gameController.start();
+        startButton.style.display = 'none';
     });
 
-    window.addEventListener('keyup', (event) => {
-        keysPressed[event.key] = false;
+    // Configurar el botón de reinicio
+    const restartButton = document.getElementById('restartButton');
+    restartButton.addEventListener('click', () => {
+        gameController.restart();
     });
 
-    const game = new Game(canvas, keysPressed);
-
-    document.getElementById('startButton').addEventListener('click', () => {
-        game.start();
-        document.getElementById('start-container').classList.add('hidden');
-        document.getElementById('game-container').classList.remove('hidden');
+    // Manejar el redimensionamiento de la ventana
+    window.addEventListener('resize', () => {
+        canvas.width = GAME_CONSTANTS.CANVAS.WIDTH;
+        canvas.height = GAME_CONSTANTS.CANVAS.HEIGHT;
+        gameController.gameView.clear();
     });
 
-    document.getElementById('restartButton').addEventListener('click', () => {
-        game.restart();
-    });
+    // Iniciar música de fondo
+    gameController.audioService.playBackground();
 });
